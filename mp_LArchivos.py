@@ -150,23 +150,6 @@ def ProcesarSolicitud(sMetodo,sParametros):
             )
 
             return "Proceso Terminado"
-        
-        case "XML":
-
-            return "Proximamente"
-
-        case "Excel":
-            return "Proximamente"
-            
-        case "Image":
-            return "Proximamente"
-
-        case "Audio":
-            return "Proximamente"
-            
-        case "Video":
-            return "Proximamente"
-
         case "PreguntaDocumento":
             pregunta, COLLECTION_NAME= sParametros.split('|')
             embeddings = OpenAIEmbeddings()
