@@ -65,77 +65,6 @@ def ProcesarSolicitud(sMetodo,sParametros):
             texts = text_splitter.split_text(ggTXTCompleto)
             docs = [Document(page_content=t) for t in texts]
 
-            ###########################################################################
-            ########################## Seccion Resumen ################################
-            ###########################################################################
-            
-            map_template = """Escribe un resumen en español del siguiente documento:
-
-            {content}
-
-            """
-            map_prompt = PromptTemplate.from_template(map_template)
-
-            llm = Ollama(model="llama2")
-            map_chain = LLMChain(prompt=map_prompt, llm=llm)
-            reduce_template = """El siguiente es un conjunto de resumenes en español:
-
-            {doc_summaries}
-
-            Realiza un resumen con la infotmacion dada de los resumenes 
-            """
-            reduce_prompt = PromptTemplate.from_template(reduce_template)
-            reduce_chain = LLMChain(prompt=reduce_prompt, llm=llm)
-            stuff_chain = StuffDocumentsChain(
-                llm_chain=reduce_chain, document_variable_name="doc_summaries")
-
-            reduce_chain = ReduceDocumentsChain(
-                combine_documents_chain=stuff_chain,
-            )
-            map_reduce_chain = MapReduceDocumentsChain(
-                llm_chain=map_chain,
-                document_variable_name="content",
-                reduce_documents_chain=reduce_chain
-            )
-            splitter = TokenTextSplitter(chunk_size=2000)
-            split_docs = splitter.split_documents(docs)
-            ResumenFinal = map_reduce_chain.run(split_docs)
-            
-            ###########################################################################
-            ######################### Seccion WordCloud ###############################
-            ###########################################################################
-            
-            map_template = """Realiza un lista del siguiente text con las palabras clave:
-
-            {content}
-
-            """
-            map_prompt = PromptTemplate.from_template(map_template)
-            llm = Ollama(model="llama2")
-            map_chain = LLMChain(prompt=map_prompt, llm=llm)
-            reduce_template = """Obtene todas las palabras clave con del siguiente contenido y enlistalas en español:
-
-            {doc_summaries}
-            
-            solo realiza un listado
-            """
-            reduce_prompt = PromptTemplate.from_template(reduce_template)
-            reduce_chain = LLMChain(prompt=reduce_prompt, llm=llm)
-            stuff_chain = StuffDocumentsChain(
-                llm_chain=reduce_chain, document_variable_name="doc_summaries")
-
-            reduce_chain = ReduceDocumentsChain(
-                combine_documents_chain=stuff_chain,
-            )
-            map_reduce_chain = MapReduceDocumentsChain(
-                llm_chain=map_chain,
-                document_variable_name="content",
-                reduce_documents_chain=reduce_chain
-            )
-            splitter = TokenTextSplitter(chunk_size=2000)
-            split_docs = splitter.split_documents(docs)
-            PalabrasClave = map_reduce_chain.run(split_docs)
-            
             load_dotenv()
             
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20,length_function=len,is_separator_regex=False,)
@@ -148,7 +77,6 @@ def ProcesarSolicitud(sMetodo,sParametros):
                 collection_name=COLLECTION_NAME,
                 connection_string=CONNECTION_STRING
             )
-
             return "Proceso Terminado"
         case "PreguntaDocumento":
             pregunta, COLLECTION_NAME= sParametros.split('|')
@@ -159,8 +87,6 @@ def ProcesarSolicitud(sMetodo,sParametros):
                     collection_name=COLLECTION_NAME,
                     connection_string=CONNECTION_STRING
                 )
-            
-            
             # similar = db.similarity_search_with_score(query, k=3)
             retriever = db.as_retriever(search_kwargs={'k': 3})  # default 4
    
